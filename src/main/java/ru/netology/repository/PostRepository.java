@@ -1,23 +1,21 @@
 package ru.netology.repository;
 
 import ru.netology.model.Post;
-
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PostRepository {
   private final AtomicLong counting = new AtomicLong();
-  private final CopyOnWriteArrayList<Post> posts = new CopyOnWriteArrayList<>();
+  private final List<Post> posts = Collections.synchronizedList(new ArrayList<>());
 
   public List<Post> all() {
     return posts;
   }
 
   public Optional<Post> getById(long id) {
-    for (Post i : posts) {
-      if (id == i.getId()) {
-        return Optional.of(i);
+    for (int i = 0 ; i < posts.size(); i++) {
+      if (id == posts.get(i).getId()) {
+        return Optional.of(posts.get(i));
       }
     }
     return Optional.empty();
