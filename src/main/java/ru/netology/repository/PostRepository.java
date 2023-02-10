@@ -1,23 +1,30 @@
 package ru.netology.repository;
 
 import ru.netology.model.Post;
+
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PostRepository {
+
   private final AtomicLong counting = new AtomicLong();
-  private final List<Post> posts = Collections.synchronizedList(new ArrayList<>());
+  private final ConcurrentHashMap<Long, Post> posts = new ConcurrentHashMap<>();
 
   public List<Post> all() {
-    return posts;
+    List<Post> list = new ArrayList<>();
+    if (!posts.isEmpty()) {
+      for (long i : posts.keySet()) {
+        list.add(posts.get(i));
+      }
+    }
+    return list;
   }
 
   public Optional<Post> getById(long id) {
-    for (int i = 0 ; i < posts.size(); i++) {
-      if (id == posts.get(i).getId()) {
-        return Optional.of(posts.get(i));
+    if (posts.containsKey(id)) {
+        return Optional.of(posts.get(id));
       }
-    }
     return Optional.empty();
   }
 
@@ -26,25 +33,18 @@ public class PostRepository {
       long id = counting.longValue();
       post.setId(id);
       counting.addAndGet(1);
-      posts.add(post);
+      posts.put(id, post);
       return Optional.of(post);
     } else {
-      for (int i = 0; i < posts.size(); i++) {
-        if (post.getId() == posts.get(i).getId()) {
-          posts.set(i, post);
+        if (posts.containsKey(post.getId())) {
+          posts.replace(post.getId(), post);
           return Optional.of(post);
         }
       }
-    }
     return Optional.empty();
   }
 
   public void removeById(long id) {
-    for (int i = 0; i < posts.size(); i++) {
-      if (id == posts.get(i).getId()) {
-        posts.remove(i);
-        break;
-      }
-    }
+    posts.remove(id);
   }
 }
