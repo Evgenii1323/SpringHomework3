@@ -12,13 +12,10 @@ public class PostRepository {
   private final ConcurrentHashMap<Long, Post> posts = new ConcurrentHashMap<>();
 
   public List<Post> all() {
-    List<Post> list = new ArrayList<>();
     if (!posts.isEmpty()) {
-      for (long i : posts.keySet()) {
-        list.add(posts.get(i));
-      }
+      return new ArrayList<>(posts.values());
     }
-    return list;
+    return new ArrayList<>();
   }
 
   public Optional<Post> getById(long id) {
